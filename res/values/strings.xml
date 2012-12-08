@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="hello">Hello World, SOSMateActivity!</string>
+    <string name="app_name">LifeGuard360</string>
+    <string name="helpMeButton">Help me!</string>
+    <string name="defaultMessage">I\'m in great danger! Please help me! My location is:</string>
+    <string name="defaultMessageHint">Enter your custom message</string>
+    <string name="phoneNumberHint">Enter phone number</string>
+    <string name="saveButtonText">Save</string>
+    <string name="aboutText">SOSMate - Save Our Soul Mate, is an application built with idea that it can be of great use in emergency situations.</string>
+
+</resources>

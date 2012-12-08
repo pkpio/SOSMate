@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@drawable/background"
+    android:gravity="center"
+    android:orientation="vertical" >
+
+    <Button
+        android:id="@+id/helpMeButton"
+        android:layout_width="250dp"
+        android:layout_height="250dp"
+        android:background="@drawable/circularbutton_red"
+        android:gravity="center_vertical|center_horizontal"
+        android:text="@string/helpMeButton"
+        android:textSize="25dp"
+        android:textColor="#fff" />
+
+</LinearLayout>
