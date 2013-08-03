@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
 
+import in.co.praveenkumar.MyLocation.LocationResult;
 import in.co.praveenkumar.lifeguard360.R;
 import android.app.Activity;
 import android.app.Dialog;
@@ -16,6 +17,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.telephony.SmsManager;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -37,67 +39,58 @@ public class LifeGuardActivity extends Activity {
 
 		Button helpMeButton = (Button) findViewById(R.id.helpMeButton);
 		helpMeButton.setOnClickListener(helpMeButtonListener);
-		locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-		locationManager.requestLocationUpdates(
-				LocationManager.NETWORK_PROVIDER, 10000, 5,
-				new GeoUpdateHandler());
-		locationManager.requestLocationUpdates(
-				LocationManager.GPS_PROVIDER, 60000, 5,
-				new GeoUpdateHandler());
 	}
 
 	protected boolean isRouteDisplayed() {
 		return false;
 	}
 
-	public class GeoUpdateHandler implements LocationListener {
-
-		public void onLocationChanged(Location location) {
-			Geocoder geocoder = new Geocoder(getApplicationContext(),
-					Locale.getDefault());
-			Lat = location.getLatitude() + "";
-			Lng = location.getLongitude() + "";
-			try {
-				List<Address> listAddresses = geocoder.getFromLocation(
-						location.getLatitude(), location.getLongitude(), 1);
-				if (null != listAddresses && listAddresses.size() > 0) {
-					Location = listAddresses.get(0).getAddressLine(0) + "\n"
-							+ listAddresses.get(0).getAddressLine(1) + "\n"
-							+ listAddresses.get(0).getAddressLine(2) + "\n"
-							+ "Latitude : " + Lat + "\n" + "Longitude : " + Lng;
-					Toast.makeText(getBaseContext(), Location,
-							Toast.LENGTH_SHORT).show();
-				}
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-
-		}
-
-		public void onProviderDisabled(String provider) {
-		}
-
-		public void onProviderEnabled(String provider) {
-		}
-
-		public void onStatusChanged(String provider, int status, Bundle extras) {
-		}
-	}
-
 	private OnClickListener helpMeButtonListener = new OnClickListener() {
 		public void onClick(View v) {
 
-			AppPreferences appPrefs;
-			appPrefs = new AppPreferences(getApplicationContext());
-			String message = appPrefs.getPrefs("message") + "\n" + Location;
+			LocationResult locationResult = new LocationResult() {
+				@Override
+				public void gotLocation(Location location) {
+					// Got the location!
+					AppPreferences appPrefs;
+					appPrefs = new AppPreferences(getApplicationContext());
+					getAddress(location);
+					Log.d("Location value", Location);
+					String message = appPrefs.getPrefs("message") + "\n" + "BestKnownLocation : \n"
+							+ Location;
+					for (int i = 1; i < 6; i++) {
+						String contactNumber = appPrefs.getPrefs("contact" + i);
+						if (contactNumber.compareTo("") != 0)
+							sendSMS(contactNumber, message);
+					}
+				}
+			};
+			MyLocation myLocation = new MyLocation();
+			myLocation.getLocation(getApplicationContext(), locationResult);
 
-			for (int i = 1; i < 6; i++) {
-				String contactNumber = appPrefs.getPrefs("contact" + i);
-				if (contactNumber.compareTo("") != 0)
-					sendSMS(contactNumber, message);
-			}
 		}
 	};
+
+	public void getAddress(Location location) {
+		Geocoder geocoder = new Geocoder(getApplicationContext(),
+				Locale.getDefault());
+		Lat = location.getLatitude() + "";
+		Lng = location.getLongitude() + "";
+		try {
+			List<Address> listAddresses = geocoder.getFromLocation(
+					location.getLatitude(), location.getLongitude(), 1);
+			if (null != listAddresses && listAddresses.size() > 0) {
+				Location = listAddresses.get(0).getAddressLine(0) + "\n"
+						+ listAddresses.get(0).getAddressLine(1) + "\n"
+						+ listAddresses.get(0).getAddressLine(2) + "\n"
+						+ "Latitude : " + Lat + "\n" + "Longitude : " + Lng;
+				Toast.makeText(getBaseContext(), Location, Toast.LENGTH_SHORT)
+						.show();
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 
 	public void sendSMS(String phoneNumber, String message) {
 		Toast.makeText(getBaseContext(),
